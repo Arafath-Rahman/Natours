@@ -5,12 +5,13 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "set NODE_ENV=production server.js",
+    "start:prod": "cross-env NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js"
   },
   "author": "Md. Arafath Rahman Khan",
   "license": "ISC",
   "devDependencies": {
+    "cross-env": "^7.0.2",
     "eslint": "^7.2.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",

@@ -1,20 +1,25 @@
 const AppError = require('../utils/appError');
 
-const handleCastErrorDB = (err) => {
+const handleInvalidIdErrorDB = (err) => {
   const message = `Invalid ${err.path} : ${err.value}`;
-  return new AppError(400, message);
+  return new AppError(message, 404);
+};
+
+const handleDuplicateNameDB = (err) => {
+  const message = `Duplicate value found: "${err.keyValue.name}". Please use another value.`;
+  return new AppError(message, 400);
 };
 
 const sendErrorDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
+  res.status(404).json({
+    status: 'error',
     message: err.message,
     error: err,
     stack: err.stack,
   });
 };
 
-const sendErrorProduction = (err, res) => {
+const sendErrorProd = (err, res) => {
   //operational error, trusted error:send message to client
   if (err.isOperational) {
     res.status(err.statusCode).json({
@@ -26,7 +31,7 @@ const sendErrorProduction = (err, res) => {
     // 1) log console
     console.log('Error: ', err);
 
-    //send generic response
+    //2) send generic response
     res.status(500).json({
       status: 'error',
       message: 'Something went wrong!',
@@ -42,8 +47,9 @@ module.exports = (err, req, res, next) => {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
-    if (error.kind === 'ObjectId') error = handleCastErrorDB(error, res);
+    if (error.kind === 'ObjectId') error = handleInvalidIdErrorDB(error);
+    if (error.code === 11000) error = handleDuplicateNameDB(error);
 
-    sendErrorProduction(error, res);
+    sendErrorProd(error, res);
   }
 };

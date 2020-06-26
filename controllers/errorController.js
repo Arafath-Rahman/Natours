@@ -10,6 +10,13 @@ const handleDuplicateNameDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleValidationErrorDB = (err) => {
+  const message = Object.values(err.errors)
+    .map((el) => el.message)
+    .join(' | ');
+  return new AppError(message, 404);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(404).json({
     status: 'error',
@@ -49,6 +56,8 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
     if (error.kind === 'ObjectId') error = handleInvalidIdErrorDB(error);
     if (error.code === 11000) error = handleDuplicateNameDB(error);
+    if (error._message.includes('validation failed', 0) === true)
+      error = handleValidationErrorDB(error);
 
     sendErrorProd(error, res);
   }

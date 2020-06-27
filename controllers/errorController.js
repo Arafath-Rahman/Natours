@@ -17,9 +17,15 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 404);
 };
 
+const handleJWTerror = () =>
+  new AppError('Invalid token. Please login again!', 401);
+
+const handleJWTExpireError = () =>
+  new AppError('Token expired. Please login again!', 401);
+
 const sendErrorDev = (err, res) => {
-  res.status(404).json({
-    status: 'error',
+  res.status(err.statusCode).json({
+    status: err.status,
     message: err.message,
     error: err,
     stack: err.stack,
@@ -29,6 +35,7 @@ const sendErrorDev = (err, res) => {
 const sendErrorProd = (err, res) => {
   //operational error, trusted error:send message to client
   if (err.isOperational) {
+    console.log(err);
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -36,7 +43,7 @@ const sendErrorProd = (err, res) => {
   } else {
     //programming error, unknown error: dont leak error message
     // 1) log console
-    console.log('Error: ', err);
+    console.log('Error: 🔥 ', err);
 
     //2) send generic response
     res.status(500).json({
@@ -54,10 +61,14 @@ module.exports = (err, req, res, next) => {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
+    console.log(error);
     if (error.kind === 'ObjectId') error = handleInvalidIdErrorDB(error);
     if (error.code === 11000) error = handleDuplicateNameDB(error);
-    if (error._message.includes('validation failed', 0) === true)
+    if (error._message && error._message.includes('Validation failed', 0))
       error = handleValidationErrorDB(error);
+
+    if (error.name === 'JsonWebTokenError') error = handleJWTerror();
+    if (error.name === 'TokenExpiredError') error = handleJWTExpireError();
 
     sendErrorProd(error, res);
   }

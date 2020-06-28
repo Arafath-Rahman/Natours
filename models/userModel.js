@@ -56,6 +56,13 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 // this method will available to all 'Documents' created with userSchema
 userSchema.methods.correctPassword = async function (
   candidatePassword,
@@ -84,7 +91,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest('hex');
 
-  console.log({ resetToken }, this.passwordResetToken);
+  //console.log({ resetToken }, this.passwordResetToken);
 
   this.passwordResetTokenExpiresAt = Date.now() + 10 * 60 * 1000;
 

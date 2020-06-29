@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -42,6 +43,19 @@ app.use(xss());
 //using 'static' build-in middleware to serve static files from folders
 app.use(express.static(`${__dirname}/public`));
 
+// Preventing Parameter Pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
 //creating our own 'TEST' middleware
 app.use((req, res, next) => {
   req.requestedTime = new Date().toISOString();

@@ -33,14 +33,7 @@ router
 
 //POST /tour/:tourId/reviews
 //GET /tour/:tourId/reviews
+//GET /tour/:tourId/reviews
 //GET tour/:tourId/reviews/:reviewId
-
-// router
-//   .route('/:tourId/reviews')
-//   .post(
-//     authController.protect,
-//     authController.restrictTo('user'),
-//     reviewController.createReview
-//   );
 
 module.exports = router;

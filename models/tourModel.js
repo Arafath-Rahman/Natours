@@ -123,6 +123,10 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// make 'price' an index
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // virtual properties (these are not part of DB)
 tourSchema.virtual('durationInWeeks').get(function () {
   return this.duration / 7;

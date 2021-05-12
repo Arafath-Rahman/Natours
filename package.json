@@ -34,7 +34,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.19",
     "morgan": "^1.10.0",
-    "nodemailer": "^6.4.10",
+    "nodemailer": "^6.4.16",
     "npm": "^6.14.6",
     "puppeteer": "^4.0.0",
     "slugify": "^1.4.0",
